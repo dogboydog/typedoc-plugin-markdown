@@ -1,46 +1,41 @@
-import * as Handlebars from 'handlebars';
-
+import settings from '../../src/renderer/settings';
+import { typeTemplate } from '../../src/renderer/templates/type';
 import { TestApp } from '../test-app';
 
 describe(`Types:`, () => {
   let testApp: TestApp;
 
-  beforeAll(async () => {
+  beforeAll(() => {
     testApp = new TestApp(['types.ts']);
-    await testApp.bootstrap();
+    testApp.bootstrap();
+    settings.activeUrl = 'modules/types.md';
+  });
+
+  afterAll(() => {
+    testApp.cleanup();
   });
 
   test(`should compile 'array' type'`, () => {
     expect(
-      TestApp.compileHelper(
-        Handlebars.helpers.type,
-        testApp.findReflection('arrayType').type,
-      ),
+      typeTemplate(testApp.findReflection('arrayType').type),
     ).toMatchSnapshot();
   });
 
   test(`should compile 'stringLiteral' type'`, () => {
     expect(
-      TestApp.compileHelper(
-        Handlebars.helpers.type,
-        testApp.findReflection('stringLiteralType').type,
-      ),
+      typeTemplate(testApp.findReflection('stringLiteralType').type),
     ).toMatchSnapshot();
   });
 
   test(`should compile 'union' of string literals types'`, () => {
     expect(
-      TestApp.compileHelper(
-        Handlebars.helpers.type,
-        testApp.findReflection('unionType').type,
-      ),
+      typeTemplate(testApp.findReflection('unionType').type),
     ).toMatchSnapshot();
   });
 
   test(`should compile 'union' of literal declarations`, () => {
     expect(
-      TestApp.compileHelper(
-        Handlebars.helpers.type,
+      typeTemplate(
         testApp.findReflection('unionTypeWithSymbolsDeclarations').type,
       ),
     ).toMatchSnapshot();
@@ -48,57 +43,49 @@ describe(`Types:`, () => {
 
   test(`should compile intrinsic type'`, () => {
     expect(
-      Handlebars.helpers.type.call(testApp.findReflection('stringType').type),
+      typeTemplate(testApp.findReflection('stringType').type),
     ).toMatchSnapshot();
   });
 
   test(`should compile collapsed 'literal' type'`, () => {
     expect(
-      Handlebars.helpers.type.call(
-        testApp.findReflection('literalType').type,
-        'all',
-      ),
+      typeTemplate(testApp.findReflection('literalType').type, 'all'),
     ).toMatchSnapshot();
   });
 
   test(`should compile expanded 'literal' type'`, () => {
     expect(
-      Handlebars.helpers.type.call(testApp.findReflection('literalType').type),
+      typeTemplate(testApp.findReflection('literalType').type),
     ).toMatchSnapshot();
   });
 
   test(`should compile collapsed 'objectLiteralType' type'`, () => {
     expect(
-      Handlebars.helpers.type.call(
-        testApp.findReflection('objectLiteralType'),
-        'object',
-      ),
+      typeTemplate(testApp.findReflection('objectLiteralType'), 'object'),
     ).toMatchSnapshot();
   });
 
   test(`should compile expanded 'objectLiteralType' type'`, () => {
     expect(
-      Handlebars.helpers.type.call(testApp.findReflection('objectLiteralType')),
+      typeTemplate(testApp.findReflection('objectLiteralType')),
     ).toMatchSnapshot();
   });
 
   test(`should compile 'tuple' type'`, () => {
     expect(
-      Handlebars.helpers.type.call(testApp.findReflection('tupleType').type),
+      typeTemplate(testApp.findReflection('tupleType').type),
     ).toMatchSnapshot();
   });
 
   test(`should compile 'intersection' type'`, () => {
     expect(
-      Handlebars.helpers.type.call(
-        testApp.findReflection('intersectionType').type,
-      ),
+      typeTemplate(testApp.findReflection('intersectionType').type),
     ).toMatchSnapshot();
   });
 
   test(`should compile collapsed 'function' type '`, () => {
     expect(
-      Handlebars.helpers.type.call(
+      typeTemplate(
         testApp.findReflection('functionReflectionType').type,
         'function',
       ),
@@ -107,33 +94,25 @@ describe(`Types:`, () => {
 
   test(`should compile expanded 'function' type '`, () => {
     expect(
-      Handlebars.helpers.type.call(
-        testApp.findReflection('functionReflectionType').type,
-      ),
+      typeTemplate(testApp.findReflection('functionReflectionType').type),
     ).toMatchSnapshot();
   });
 
   test(`should compile 'typeOperator' type '`, () => {
     expect(
-      Handlebars.helpers.type.call(
-        testApp.findReflection('typeOperatorType').type,
-      ),
+      typeTemplate(testApp.findReflection('typeOperatorType').type),
     ).toMatchSnapshot();
   });
 
   test(`should compile unionType with object literal type '`, () => {
     expect(
-      Handlebars.helpers.type.call(
-        testApp.findReflection('objectLiteralUnionType').type,
-      ),
+      typeTemplate(testApp.findReflection('objectLiteralUnionType').type),
     ).toMatchSnapshot();
   });
 
   test(`should compile conditional type '`, () => {
     expect(
-      Handlebars.helpers.type.call(
-        testApp.findReflection('ConditionalType').type,
-      ),
+      typeTemplate(testApp.findReflection('ConditionalType').type),
     ).toMatchSnapshot();
   });
 });

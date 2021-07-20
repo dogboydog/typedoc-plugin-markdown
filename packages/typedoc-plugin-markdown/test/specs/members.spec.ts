@@ -1,33 +1,44 @@
-import * as Handlebars from 'handlebars';
-
+import { DeclarationReflection } from 'typedoc';
+import * as linkTemplate from '../../src/renderer/templates/link';
+import * as memberTemplate from '../../src/renderer/templates/member';
+import { reflectionTemplate } from '../../src/renderer/templates/reflection';
+import * as sourcesTemplate from '../../src/renderer/templates/sources';
+import * as tocTemplate from '../../src/renderer/templates/toc';
+import { formatContents } from '../../src/renderer/tools/utils';
 import { TestApp } from '../test-app';
 
 describe(`Members:`, () => {
   let testApp: TestApp;
-  let membersPartial: Handlebars.TemplateDelegate;
-  let memberPartial: Handlebars.TemplateDelegate;
-  beforeAll(async () => {
-    testApp = new TestApp(['members.ts']);
-    await testApp.bootstrap();
 
-    TestApp.stubPartials(['member', 'index', 'member.sources']);
-    TestApp.stubHelpers(['relativeURL']);
-    membersPartial = TestApp.getPartial('members');
-    memberPartial = TestApp.getPartial('member');
+  beforeAll(() => {
+    testApp = new TestApp(['members.ts']);
+    testApp.bootstrap();
+    jest.spyOn(tocTemplate, 'tocTemplate').mockReturnValue('[TOC]');
+    jest.spyOn(linkTemplate, 'linkTemplate').mockReturnValue('[LINK]');
+    jest.spyOn(sourcesTemplate, 'sourcesTemplate').mockReturnValue('[SOURCES]');
+  });
+
+  afterAll(() => {
+    jest.restoreAllMocks();
+    testApp.cleanup();
   });
 
   describe(`(members)`, () => {
-    test(`should compile module members'`, () => {
-      expect(
-        TestApp.compileTemplate(membersPartial, testApp.findModule('members')),
-      ).toMatchSnapshot();
+    let memberSpy: jest.SpyInstance;
+    beforeAll(() => {
+      memberSpy = jest
+        .spyOn(memberTemplate, 'memberTemplate')
+        .mockReturnValue('[MEMBER]');
     });
-
+    afterAll(() => {
+      memberSpy.mockRestore();
+    });
     test(`should compile class members'`, () => {
       expect(
-        TestApp.compileTemplate(
-          membersPartial,
-          testApp.findReflection('ClassWithAccessorMembers'),
+        formatContents(
+          reflectionTemplate(
+            testApp.findReflection('ClassWithAccessorMembers'),
+          ),
         ),
       ).toMatchSnapshot();
     });
@@ -36,40 +47,44 @@ describe(`Members:`, () => {
   describe(`(member)`, () => {
     test(`should compile declaration members'`, () => {
       expect(
-        TestApp.compileTemplate(
-          memberPartial,
-          testApp.findReflection('declarationMember'),
+        formatContents(
+          memberTemplate.memberTemplate(
+            testApp.findReflection('declarationMember'),
+          ),
         ),
       ).toMatchSnapshot();
     });
 
     test(`should compile a signature members'`, () => {
       expect(
-        TestApp.compileTemplate(
-          memberPartial,
-          testApp.findReflection('signatureMember'),
+        formatContents(
+          memberTemplate.memberTemplate(
+            testApp.findReflection('signatureMember'),
+          ),
         ),
       ).toMatchSnapshot();
     });
 
     test(`should compile members with getter'`, () => {
       expect(
-        TestApp.compileTemplate(
-          memberPartial,
-          testApp
-            .findReflection('ClassWithAccessorMembers')
-            .findReflectionByName('getter'),
+        formatContents(
+          memberTemplate.memberTemplate(
+            testApp
+              .findReflection('ClassWithAccessorMembers')
+              .findReflectionByName('getter') as DeclarationReflection,
+          ),
         ),
       ).toMatchSnapshot();
     });
 
     test(`should compile members with setter'`, () => {
       expect(
-        TestApp.compileTemplate(
-          memberPartial,
-          testApp
-            .findReflection('ClassWithAccessorMembers')
-            .findReflectionByName('setter'),
+        formatContents(
+          memberTemplate.memberTemplate(
+            testApp
+              .findReflection('ClassWithAccessorMembers')
+              .findReflectionByName('setter') as DeclarationReflection,
+          ),
         ),
       ).toMatchSnapshot();
     });

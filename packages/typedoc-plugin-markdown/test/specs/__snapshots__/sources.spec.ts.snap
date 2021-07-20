@@ -3,7 +3,7 @@
 exports[`Sources: should display implementation of sources' 1`] = `
 "#### Implementation of
 
-[SomeInterface](SomeInterface.md).[prop](SomeInterface.md#prop)
+[SomeInterface](../interfaces/SomeInterface.md).[prop](../interfaces/SomeInterface.md#prop)
 
 #### Defined in
 

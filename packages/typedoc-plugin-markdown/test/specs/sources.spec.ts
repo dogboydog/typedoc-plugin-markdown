@@ -1,6 +1,7 @@
-import * as Handlebars from 'handlebars';
 import { DeclarationReflection } from 'typedoc';
-
+import settings from '../../src/renderer/settings';
+import { sourcesTemplate } from '../../src/renderer/templates/sources';
+import { formatContents } from '../../src/renderer/tools/utils';
 import { TestApp } from '../test-app';
 
 const getProp = (reflection: DeclarationReflection) => {
@@ -9,41 +10,42 @@ const getProp = (reflection: DeclarationReflection) => {
     delete source.url;
     return source;
   });
-  return prop;
+  return prop as any;
 };
 
 describe(`Sources:`, () => {
   let testApp: TestApp;
-  let partial: Handlebars.TemplateDelegate;
-  beforeAll(async () => {
+
+  beforeAll(() => {
     testApp = new TestApp(['sources.ts']);
-    await testApp.bootstrap();
-    partial = TestApp.getPartial('member.sources');
+    testApp.bootstrap();
+    settings.activeUrl = 'class/SomeClass.md';
+  });
+
+  afterAll(() => {
+    testApp.cleanup();
   });
 
   test(`should display implementation of sources'`, () => {
     expect(
-      TestApp.compileTemplate(
-        partial,
-        getProp(testApp.findReflection('SomeClass')),
+      formatContents(
+        sourcesTemplate(getProp(testApp.findReflection('SomeClass'))),
       ),
     ).toMatchSnapshot();
   });
 
   test(`should display inherited sources'`, () => {
     expect(
-      TestApp.compileTemplate(
-        partial,
-        getProp(testApp.findReflection('AnotherInterface')),
+      formatContents(
+        sourcesTemplate(getProp(testApp.findReflection('AnotherInterface'))),
       ),
     ).toMatchSnapshot();
   });
 
   test(`should display overide sources'`, () => {
     expect(
-      TestApp.compileTemplate(
-        partial,
-        getProp(testApp.findReflection('AnotherClass')),
+      formatContents(
+        sourcesTemplate(getProp(testApp.findReflection('AnotherClass'))),
       ),
     ).toMatchSnapshot();
   });

@@ -6,12 +6,11 @@ You can write <strong>HTML</strong> tags directly in comments
 </p>
 <ul>
 <li>List item</li>
-</ul>
-"
+</ul>"
 `;
 
 exports[`Comments: should build @link references' 1`] = `
-"See [\`CommentClass\`](CommentClass.md) and [CommentClass's comment property](CommentClass.md#comment).
+"See [\`CommentClass\`](classes/CommentClass.md) and [CommentClass's comment property](classes/CommentClass.md#comment).
 Also, check out [Google](https://www.google.com) and
 [GitHub](https://github.com).
 
@@ -32,19 +31,6 @@ anotherFunction()
 "
 `;
 
-exports[`Comments: should convert comments with includes' 1`] = `
-"This is an example of include
-
-This is a simple example on how to use include.
-
-![My image alt text](../media/logo.png)
-
-This is an example of handlebars include
-
-This is a simple example on a handlebars file.
-"
-`;
-
 exports[`Comments: should convert comments with tags' 1`] = `
 "**\`name\`** Tag description on same line
 
@@ -52,6 +38,7 @@ exports[`Comments: should convert comments with tags' 1`] = `
 Tag description on new line
 
 - Tag description on another line
+
 
 **\`deprecated\`**
 Another tag description
@@ -61,8 +48,8 @@ Another tag description
 exports[`Comments: should convert symbols brackets to symbol links' 1`] = `
 "Additionally you can link to other classes, members or functions using double square brackets.
 
-- Link to an external reflection: [CommentClass](CommentClass.md)
-- Link to an internal reflection: [commentsInReturn](../modules.md#commentsinreturn)
+- Link to an external reflection: [CommentClass](classes/CommentClass.md)
+- Link to an internal reflection: [commentsInReturn](modules.md#commentsinreturn)
 - Link to an undefined reflection: [[VOID]]
 "
 `;

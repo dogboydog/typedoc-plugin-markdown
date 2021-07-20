@@ -1,6 +1,7 @@
-import * as Handlebars from 'handlebars';
 import { Reflection } from 'typedoc';
-
+import { PageEvent } from 'typedoc/dist/lib/output/events';
+import settings from '../../src/renderer/settings';
+import { breadcrumbsTemplate } from '../../src/renderer/templates/breadcrumbs';
 import { TestApp } from '../test-app';
 
 describe(`Breadcrumbs:`, () => {
@@ -9,77 +10,84 @@ describe(`Breadcrumbs:`, () => {
 
   describe(`(with readme)`, () => {
     let testApp: TestApp;
-    beforeAll(async () => {
+    beforeAll(() => {
       testApp = new TestApp(['breadcrumbs.ts']);
-      await testApp.bootstrap();
+      testApp.bootstrap();
       moduleReflection = testApp.project.children[0];
       classReflection = testApp.project.findReflectionByName('Breadcrumbs');
     });
 
+    afterAll(() => {
+      jest.restoreAllMocks();
+      testApp.cleanup();
+    });
+
     test(`should compile README breadcrumbs'`, () => {
+      settings.activeUrl = 'README.md';
       expect(
-        Handlebars.helpers.breadcrumbs.call({
+        breadcrumbsTemplate({
           project: testApp.project,
           model: testApp.project,
           url: 'README.md',
-        }),
+        } as PageEvent),
       ).toMatchSnapshot();
     });
 
     test(`should compile entryPoint (globals) breadcrumbs'`, () => {
+      settings.activeUrl = 'modules.md';
       expect(
-        Handlebars.helpers.breadcrumbs.call({
+        breadcrumbsTemplate({
           project: testApp.project,
           model: testApp.project,
-          url: 'globals.md',
-        }),
+          url: 'modules.md',
+        } as PageEvent),
       ).toMatchSnapshot();
     });
 
-    test(`should compile module breadcrumbs'`, () => {
-      expect(
-        Handlebars.helpers.breadcrumbs.call({
-          project: testApp.project,
-          model: moduleReflection,
-          url: moduleReflection.url,
-        }),
-      ).toMatchSnapshot();
-    });
     test(`should compile class breadcrumbs'`, () => {
+      settings.activeUrl = 'classes/Breadcrumbs.md';
       expect(
-        Handlebars.helpers.breadcrumbs.call({
+        breadcrumbsTemplate({
           project: testApp.project,
           model: classReflection,
-          url: classReflection.url,
-        }),
+          url: 'classes/Breadcrumbs.md',
+        } as PageEvent),
       ).toMatchSnapshot();
     });
   });
+
   describe(`(without readme)`, () => {
     let testApp: TestApp;
-    beforeAll(async () => {
+    beforeAll(() => {
       testApp = new TestApp(['breadcrumbs.ts']);
-      await testApp.bootstrap({ readme: 'none' });
-      moduleReflection = testApp.project.children[0];
+      testApp.bootstrap({ readme: 'none' });
+      moduleReflection = testApp.project;
       classReflection = testApp.project.findReflectionByName('Breadcrumbs');
     });
 
+    afterAll(() => {
+      testApp.cleanup();
+    });
+
     test(`should compile module breadcrumbs'`, () => {
+      settings.activeUrl = 'README.md';
       expect(
-        Handlebars.helpers.breadcrumbs.call({
+        breadcrumbsTemplate({
           project: testApp.project,
           model: moduleReflection,
-          url: moduleReflection.url,
-        }),
+          url: 'README.md',
+        } as PageEvent),
       ).toMatchSnapshot();
     });
+
     test(`should compile class breadcrumbs'`, () => {
+      settings.activeUrl = 'classes/Breadcrumbs.md';
       expect(
-        Handlebars.helpers.breadcrumbs.call({
+        breadcrumbsTemplate({
           project: testApp.project,
           model: classReflection,
-          url: classReflection.url,
-        }),
+          url: 'classes/Breadcrumbs.md',
+        } as PageEvent),
       ).toMatchSnapshot();
     });
   });

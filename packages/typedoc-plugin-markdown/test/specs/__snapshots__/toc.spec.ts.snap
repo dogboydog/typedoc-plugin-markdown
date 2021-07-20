@@ -9,8 +9,7 @@ exports[`TOC: (default) should display toc for class' 1`] = `
 
 ### Methods
 
-- [someMethod](Breadcrumbs.md#somemethod)
-"
+- [someMethod](Breadcrumbs.md#somemethod)"
 `;
 
 exports[`TOC: (default) should display toc for module' 1`] = `
@@ -22,6 +21,5 @@ exports[`TOC: (default) should display toc for module' 1`] = `
 
 ### Methods
 
-- [someMethod](Breadcrumbs.md#somemethod)
-"
+- [someMethod](Breadcrumbs.md#somemethod)"
 `;

@@ -1,105 +1,26 @@
-import * as fs from 'fs';
 import * as path from 'path';
-
-import * as Handlebars from 'handlebars';
 import * as tmp from 'tmp';
 import {
   Application,
   DeclarationReflection,
   ProjectReflection,
-  Renderer,
   TSConfigReader,
   TypeDocReader,
-  UrlMapping,
 } from 'typedoc';
-
+import { RendererEvent } from 'typedoc/dist/lib/output/events';
 import { load } from '../src/index';
-import MarkdownTheme from '../src/theme';
+import { getUrls } from '../src/renderer/renderer';
+import settings from '../src/renderer/settings';
+import { PluginOptions } from '../src/renderer/types';
 
 tmp.setGracefulCleanup();
 
 export class TestApp {
   app: Application;
   project: ProjectReflection;
-  renderer: Renderer;
-  theme: MarkdownTheme;
   outDir: string;
   tmpobj: tmp.DirResult;
   entryPoints: string[];
-
-  static handlebarsOptionsStub = {
-    fn: () => true,
-    inverse: () => false,
-    hash: {},
-  };
-
-  static compileTemplate(template: Handlebars.TemplateDelegate, context: any) {
-    return MarkdownTheme.formatContents(
-      template(context, {
-        allowProtoMethodsByDefault: true,
-        allowProtoPropertiesByDefault: true,
-      }),
-    );
-  }
-
-  static compileHelper(
-    helper: Handlebars.HelperDelegate,
-    context: any,
-    args?: any,
-  ) {
-    return MarkdownTheme.formatContents(helper.call(context, args));
-  }
-
-  static getTemplate(name: string) {
-    const templateDir = path.resolve(
-      __dirname,
-      '..',
-      'dist',
-      'resources',
-      'templates',
-    );
-    const hbs = fs.readFileSync(templateDir + '/' + name + '.hbs');
-    return Handlebars.compile(hbs.toString());
-  }
-
-  static getPartial(name: string) {
-    const partialDir = path.resolve(
-      __dirname,
-      '..',
-      'dist',
-      'resources',
-      'partials',
-    );
-    const hbs = fs.readFileSync(partialDir + '/' + name + '.hbs');
-    return Handlebars.compile(hbs.toString());
-  }
-
-  static stubPartials(partials: string[]) {
-    partials.forEach((partial) => {
-      Handlebars.registerPartial(partial, `[partial: ${partial}]`);
-    });
-  }
-
-  static stubHelpers(helpers: string[]) {
-    helpers.forEach((helper) => {
-      Handlebars.registerHelper(helper, () => `[helper: ${helper}]`);
-    });
-  }
-
-  static getExpectedUrls(urlMappings: UrlMapping[]) {
-    const expectedUrls = [];
-    urlMappings.forEach((urlMapping) => {
-      expectedUrls.push(urlMapping.url);
-      if (urlMapping.model.children) {
-        urlMapping.model.children.forEach((reflection) => {
-          if (!reflection.hasOwnDocument) {
-            expectedUrls.push(reflection.url);
-          }
-        });
-      }
-    });
-    return expectedUrls;
-  }
 
   constructor(entryPoints?: string[]) {
     this.app = new Application();
@@ -113,7 +34,7 @@ export class TestApp {
     this.app.options.addReader(new TSConfigReader());
   }
 
-  async bootstrap(options: any = {}) {
+  bootstrap(options: any = {}) {
     this.app.bootstrap({
       logger: 'none',
       entryPoints: this.entryPoints,
@@ -122,11 +43,26 @@ export class TestApp {
     });
 
     this.project = this.app.convert();
-    this.renderer = this.app.renderer;
-    this.tmpobj = tmp.dirSync();
 
-    await this.app.generateDocs(this.project, this.tmpobj.name);
-    this.theme = this.app.renderer.theme as MarkdownTheme;
+    if (this.project) {
+      settings.project = this.project;
+      settings.options = this.app.options.getRawValues() as PluginOptions;
+
+      this.tmpobj = tmp.dirSync();
+
+      const output = new RendererEvent(
+        RendererEvent.BEGIN,
+        this.tmpobj.name,
+        this.project,
+      );
+
+      output.urls = getUrls(this.project);
+    }
+  }
+
+  cleanup() {
+    delete this.app;
+    delete this.project;
   }
 
   findModule(name: string) {

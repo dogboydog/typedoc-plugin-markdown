@@ -7,16 +7,18 @@
     "dist/"
   ],
   "scripts": {
-    "lint": "eslint ./src --ext .ts",
+    "lint": "",
+    "lint:ts": "eslint ./src --ext .ts",
+    "lint:md": "yarn run demo:md && markdownlint ./demo/md",
     "prepublishOnly": "yarn run lint && yarn run build && yarn run test",
     "build": "rm -rf dist && tsc && copyfiles --up 1 ./src/**/*.hbs ./dist/",
-    "pretest": "yarn run demo:md && markdownlint ./demo/md",
-    "test": "jest --colors",
+    "test": "jest --colors --updateSnapshot",
+    "test:ci": "jest --colors --runInBand",
     "build-and-test": "yarn run build && yarn run test",
     "fixtures": "node ./tasks/fixtures.js",
-    "demos": "yarn run build && npm-run-all demo:*",
+    "demos": "rm -rf ./demo/md && yarn run build && npm-run-all demo:*",
     "demo:md": "typedoc --options ./demo.options.json --out ./demo/md",
-    "demo:html": "typedoc --options ./demo.options.json --plugin none --out ./demo/html"
+    "demos:html": "typedoc --options ./demo.options.json --plugin none --out ./demo/html"
   },
   "author": "Thomas Grey",
   "license": "MIT",
@@ -39,8 +41,5 @@
   ],
   "peerDependencies": {
     "typedoc": ">=0.21.2"
-  },
-  "dependencies": {
-    "handlebars": "^4.7.7"
   }
 }

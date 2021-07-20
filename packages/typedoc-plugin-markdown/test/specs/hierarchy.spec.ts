@@ -1,27 +1,33 @@
-import * as Handlebars from 'handlebars';
-
+import settings from '../../src/renderer/settings';
+import { hierarchyTemplate } from '../../src/renderer/templates/hierachy';
+import { formatContents } from '../../src/renderer/tools/utils';
 import { TestApp } from '../test-app';
 
 describe(`Hierarchy:`, () => {
   let testApp: TestApp;
-  let helper: Handlebars.HelperDelegate;
 
-  beforeAll(async () => {
+  beforeAll(() => {
     testApp = new TestApp(['hierarchy.ts']);
-    await testApp.bootstrap();
-    helper = Handlebars.helpers.hierarchy;
+    testApp.bootstrap();
   });
+
+  afterAll(() => {
+    testApp.cleanup();
+  });
+
   test(`should compile type hierarchy`, () => {
+    settings.activeUrl = 'classes/hierarchy.ParentClass.md';
     const reflection = testApp.findReflection('ParentClass');
     expect(
-      TestApp.compileHelper(helper, reflection.typeHierarchy, 0),
+      formatContents(hierarchyTemplate(reflection.typeHierarchy)),
     ).toMatchSnapshot();
   });
 
   test(`should compile nested type hierarchy`, () => {
+    settings.activeUrl = 'classes/hierarchy.ParentClass.md';
     const reflection = testApp.findReflection('ChildClassA');
     expect(
-      TestApp.compileHelper(helper, reflection.typeHierarchy, 0),
+      formatContents(hierarchyTemplate(reflection.typeHierarchy)),
     ).toMatchSnapshot();
   });
 });

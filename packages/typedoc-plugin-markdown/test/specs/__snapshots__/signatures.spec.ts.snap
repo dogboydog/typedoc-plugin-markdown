@@ -3,21 +3,25 @@
 exports[`Signatures: should compile callable signature' 1`] = `
 "▸ **CallableSignature**(): \`string\`
 
-##### Returns
+#### Returns
 
 \`string\`
+
+[SOURCES]
 "
 `;
 
 exports[`Signatures: should compile class with constructor' 1`] = `
 "• **new ClassWithConstructor**(\`x\`, \`y\`)
 
-##### Parameters
+#### Parameters
 
 | Name | Type |
 | :------ | :------ |
 | \`x\` | \`string\` |
 | \`y\` | \`string\` |
+
+[SOURCES]
 "
 `;
 
@@ -26,7 +30,7 @@ exports[`Signatures: should compile function that returns a function' 1`] = `
 
 Comments for function
 
-##### Returns
+#### Returns
 
 \`fn\`
 
@@ -49,6 +53,8 @@ Return comments
 ##### Returns
 
 \`boolean\`
+
+[SOURCES]
 "
 `;
 
@@ -57,7 +63,7 @@ exports[`Signatures: should compile function that returns an object' 1`] = `
 
 Comments for function
 
-##### Returns
+#### Returns
 
 \`Object\`
 
@@ -67,6 +73,8 @@ Return comments
 | :------ | :------ |
 | \`x\` | \`number\` |
 | \`y\` | \`number\` |
+
+[SOURCES]
 "
 `;
 
@@ -75,7 +83,7 @@ exports[`Signatures: should compile function with nested typen params' 1`] = `
 
 Some nested params.
 
-##### Parameters
+#### Parameters
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
@@ -89,24 +97,28 @@ Some nested params.
 | \`params.parent?\` | \`number\` | - |
 | \`context\` | \`any\` | The context of the method call. |
 
-##### Returns
+#### Returns
 
 \`boolean\`
+
+[SOURCES]
 "
 `;
 
 exports[`Signatures: should compile function with reference type' 1`] = `
 "▸ **functionWithReferenceType**(\`descriptor\`): \`boolean\`
 
-##### Parameters
+#### Parameters
 
 | Name | Type |
 | :------ | :------ |
 | \`descriptor\` | \`TypedPropertyDescriptor\`<\`any\`\\\\> |
 
-##### Returns
+#### Returns
 
 \`boolean\`
+
+[SOURCES]
 "
 `;
 
@@ -115,7 +127,7 @@ exports[`Signatures: should compile named parameters with comments' 1`] = `
 
 FOO
 
-##### Parameters
+#### Parameters
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
@@ -124,39 +136,45 @@ FOO
 | \`__namedParameters.foo?\` | \`number\` | An interesting value |
 | \`anotherParam\` | \`string\` | - |
 
-##### Returns
+#### Returns
 
 \`void\`
+
+[SOURCES]
 "
 `;
 
 exports[`Signatures: should compile named parameters' 1`] = `
 "▸ **functionWithNamedParams**(\`__namedParameters\`): \`string\`
 
-##### Parameters
+#### Parameters
 
 | Name | Type |
 | :------ | :------ |
 | \`__namedParameters\` | \`Object\` |
 
-##### Returns
+#### Returns
 
 \`string\`
+
+[SOURCES]
 "
 `;
 
 exports[`Signatures: should compile pipes in params and comments' 1`] = `
 "▸ **functionWithPipesInParamsAndComments**(\`n\`): \`number\` \\\\| \`\`null\`\`
 
-##### Parameters
+#### Parameters
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
 | \`n\` | \`number\` \\\\| \`\`null\`\` | a\\\\|b |
 
-##### Returns
+#### Returns
 
 \`number\` \\\\| \`\`null\`\`
+
+[SOURCES]
 "
 `;
 
@@ -165,20 +183,24 @@ exports[`Signatures: should compile signature with @return comments' 1`] = `
 
 Comments with a return definition
 
-##### Returns
+#### Returns
 
 \`boolean\`
 
 Return comments
+
+[SOURCES]
 "
 `;
 
 exports[`Signatures: should compile signature with a flag' 1`] = `
 "▸ \`Private\` **privateFunction**(): \`string\`
 
-##### Returns
+#### Returns
 
 \`string\`
+
+[SOURCES]
 "
 `;
 
@@ -187,7 +209,7 @@ exports[`Signatures: should compile signature with default values' 1`] = `
 
 This is a function with a parameter that has a default value.
 
-##### Parameters
+#### Parameters
 
 | Name | Type | Default value | Description |
 | :------ | :------ | :------ | :------ |
@@ -198,9 +220,11 @@ This is a function with a parameter that has a default value.
 | \`valueE\` | \`boolean\` | \`null\` | A parameter with a default null value. |
 | \`valueF\` | \`string\` | \`'<foo>'\` | - |
 
-##### Returns
+#### Returns
 
 \`string\`
+
+[SOURCES]
 "
 `;
 
@@ -209,16 +233,18 @@ exports[`Signatures: should compile signature with optional params' 1`] = `
 
 This is a function with a parameter that is optional.
 
-##### Parameters
+#### Parameters
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
 | \`requiredParam\` | \`string\` | A normal parameter. |
 | \`optionalParam?\` | \`string\` | An optional parameter. |
 
-##### Returns
+#### Returns
 
 \`void\`
+
+[SOURCES]
 "
 `;
 
@@ -227,7 +253,7 @@ exports[`Signatures: should compile signature with params' 1`] = `
 
 This is a function with multiple arguments and a return value.
 
-##### Parameters
+#### Parameters
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
@@ -235,9 +261,11 @@ This is a function with multiple arguments and a return value.
 | \`paramG\` | \`any\` | This is a parameter flagged with any.<br />     This sentence is placed in the next line. |
 | \`paramA\` | \`any\` | This is a **parameter** pointing to an interface. |
 
-##### Returns
+#### Returns
 
 \`number\`
+
+[SOURCES]
 "
 `;
 
@@ -246,30 +274,34 @@ exports[`Signatures: should compile signature with rest params' 1`] = `
 
 This is a function with rest parameter.
 
-##### Parameters
+#### Parameters
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
 | \`...rest\` | \`string\`[] | The rest parameter. |
 
-##### Returns
+#### Returns
 
 \`string\`
+
+[SOURCES]
 "
 `;
 
 exports[`Signatures: should compile signature with union types' 1`] = `
 "▸ **functionWithUnionTypes**(\`arg\`, ...\`args\`): \`any\`
 
-##### Parameters
+#### Parameters
 
 | Name | Type |
 | :------ | :------ |
 | \`arg\` | \`boolean\`[] \\\\| \`number\` |
 | \`...args\` | (\`string\` \\\\| \`number\`)[] |
 
-##### Returns
+#### Returns
 
 \`any\`
+
+[SOURCES]
 "
 `;

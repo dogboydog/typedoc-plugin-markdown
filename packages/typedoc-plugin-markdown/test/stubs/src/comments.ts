@@ -28,17 +28,6 @@ export const commentsWithSymbolLinks = true;
 export const commentsWithHTML = true;
 
 /**
- * This is an example of include
- *
- * [[include:class-example.md]]
- *
- * This is an example of handlebars include
- *
- * [[include:class-example.hbs]]
- */
-export const commentsWithIncludes = true;
-
-/**
  * @name Tag description on same line
  * @description
  * Tag description on new line

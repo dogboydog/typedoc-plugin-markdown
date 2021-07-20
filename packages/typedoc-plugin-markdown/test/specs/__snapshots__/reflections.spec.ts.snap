@@ -1,28 +1,11 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Reflections: (header) should compile template with breadcrumbs and without title 1`] = `
-"[helper: breadcrumbs]
+"[BREADCRUMBS]
 
-[helper: toc]
+[TOC]
 
-[partial: members]
-"
-`;
-
-exports[`Reflections: (template) should compile Enum 1`] = `
-"# Enumeration: EnumReflection
-
-## Table of contents
-
-### Enumeration members
-
-- [Down](../enums/EnumReflection.md#down)
-- [Left](../enums/EnumReflection.md#left)
-- [Right](../enums/EnumReflection.md#right)
-- [Up](../enums/EnumReflection.md#up)
-
-[partial: members]
-"
+[GROUPS]"
 `;
 
 exports[`Reflections: (template) should compile a callable reflection 1`] = `
@@ -32,23 +15,15 @@ exports[`Reflections: (template) should compile a callable reflection 1`] = `
 
 ### CallableReflection
 
-[partial: member.signature]
+[SIGNATURE]
 
-[partial: members]
-"
+[TOC]"
 `;
 
 exports[`Reflections: (template) should compile an indexable reflection 1`] = `
 "# Interface: IndexableReflection
 
-## Indexable
-
-▪ [index: \`number\`]: \`string\`
-
-[partial: comment]
-
-[partial: members]
-"
+[TOC]"
 `;
 
 exports[`Reflections: (template) should compile implemented class 1`] = `
@@ -56,30 +31,17 @@ exports[`Reflections: (template) should compile implemented class 1`] = `
 
 ## Implements
 
-- [\`ReflectionClass\`](../classes/ReflectionClass.md)
+- [LINK]
 
-## Table of contents
+[TOC]
 
-### Constructors
-
-- [constructor](../classes/ImplementedClass.md#constructor)
-
-[partial: members]
-"
+[GROUPS]"
 `;
 
-exports[`Reflections: (template) should compile module with breadcrumbs and project title 1`] = `
+exports[`Reflections: (template) should compile module without breadcrumbs and with project title 1`] = `
 "# Enumeration: EnumReflection
 
-## Table of contents
+[TOC]
 
-### Enumeration members
-
-- [Down](../enums/EnumReflection.md#down)
-- [Left](../enums/EnumReflection.md#left)
-- [Right](../enums/EnumReflection.md#right)
-- [Up](../enums/EnumReflection.md#up)
-
-[partial: members]
-"
+[GROUPS]"
 `;

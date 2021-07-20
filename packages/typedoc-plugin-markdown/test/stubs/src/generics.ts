@@ -8,10 +8,13 @@ export class ClassWithTypeParams<T, V> {
   propV: V;
 }
 
+/**
+ * Comments
+ */
 export const functionWithTypeParam = <A>() => true;
 
 /**
- *
+ * Comments
  * @typeParam A Comment for type `A`
  * @typeParam B Comment for type `B`
  */
@@ -32,4 +35,7 @@ export type Generic1<T> = Generic2<Generic3<T>>;
 export type Generic2<T> = T;
 export type Generic3<T> = T;
 
+/**
+ * Comments for nested generics
+ */
 export type nestedGenerics = Generic1<Generic2<Generic3<string>>>;

@@ -1,6 +1,6 @@
-import * as Handlebars from 'handlebars';
 import { Reflection } from 'typedoc';
-
+import settings from '../../src/renderer/settings';
+import { tocTemplate } from '../../src/renderer/templates/toc';
 import { TestApp } from '../test-app';
 
 describe(`TOC:`, () => {
@@ -9,36 +9,42 @@ describe(`TOC:`, () => {
 
   describe(`(default)`, () => {
     let testApp: TestApp;
-    beforeAll(async () => {
+    beforeAll(() => {
       testApp = new TestApp(['breadcrumbs.ts']);
-      await testApp.bootstrap();
+      testApp.bootstrap();
       moduleReflection = testApp.project.children[0];
       classReflection = testApp.project.findReflectionByName('Breadcrumbs');
+      settings.activeUrl = 'classes/Breadcrumbs.md';
+    });
+
+    afterAll(() => {
+      testApp.cleanup();
     });
 
     test(`should display toc for module'`, () => {
-      expect(
-        TestApp.compileHelper(Handlebars.helpers.toc, moduleReflection),
-      ).toMatchSnapshot();
+      expect(tocTemplate(moduleReflection as any)).toMatchSnapshot();
     });
 
     test(`should display toc for class'`, () => {
-      expect(
-        TestApp.compileHelper(Handlebars.helpers.toc, classReflection),
-      ).toMatchSnapshot();
+      expect(tocTemplate(classReflection as any)).toMatchSnapshot();
     });
   });
   describe(`(hideInPageToc)`, () => {
     let testApp: TestApp;
-    beforeAll(async () => {
+    beforeAll(() => {
       testApp = new TestApp(['breadcrumbs.ts']);
-      await testApp.bootstrap({ hideInPageTOC: true });
+      testApp.bootstrap({ hideInPageTOC: true });
       moduleReflection = testApp.project.children[0];
       classReflection = testApp.project.findReflectionByName('Breadcrumbs');
+      settings.activeUrl = 'classes/Breadcrumbs.md';
+    });
+
+    afterAll(() => {
+      testApp.cleanup();
     });
 
     test(`should not display toc for class'`, () => {
-      expect(Handlebars.helpers.toc.call(classReflection)).toBeNull();
+      expect(tocTemplate(classReflection as any)).toEqual('');
     });
   });
 });

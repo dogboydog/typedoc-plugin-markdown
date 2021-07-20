@@ -1,14 +1,16 @@
-import { PageEvent } from 'typedoc/dist/lib/output/events';
-
-import { getPageTitle, prependYAML } from '../../src/utils/front-matter';
+import { prependYAML } from '../../src/renderer/tools/front-matter';
 import { TestApp } from '../test-app';
 
 describe(`FrontMatter:`, () => {
   let testApp: TestApp;
 
-  beforeAll(async () => {
+  beforeAll(() => {
     testApp = new TestApp(['frontmatter.ts']);
-    await testApp.bootstrap();
+    testApp.bootstrap();
+  });
+
+  afterAll(() => {
+    testApp.cleanup();
   });
 
   test(`should prependYAML to doc content`, () => {
@@ -19,14 +21,5 @@ describe(`FrontMatter:`, () => {
         numberProp: 2,
       }),
     ).toMatchSnapshot();
-  });
-
-  test(`should get page page from reflection helper`, () => {
-    const page = {
-      project: { url: 'index.md' },
-      model: { name: 'Someclass' },
-    } as PageEvent;
-    getPageTitle(page);
-    expect(getPageTitle(page)).toEqual('Someclass');
   });
 });

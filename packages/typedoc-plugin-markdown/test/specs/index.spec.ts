@@ -1,24 +1,30 @@
-import * as Handlebars from 'handlebars';
-
+import { PageEvent } from 'typedoc/dist/lib/output/events';
+import * as breadcrumbsTemplate from '../../src/renderer/templates/breadcrumbs';
+import { readmeTemplate } from '../../src/renderer/templates/readme';
 import { TestApp } from '../test-app';
 
 describe(`Index:`, () => {
   let testApp: TestApp;
-  let indexTemplate: Handlebars.TemplateDelegate;
 
-  beforeAll(async () => {
+  beforeAll(() => {
     testApp = new TestApp(['reflections.ts']);
-    await testApp.bootstrap();
-    indexTemplate = TestApp.getTemplate('index');
-    TestApp.stubHelpers(['breadcrumbs']);
+    testApp.bootstrap();
+    jest
+      .spyOn(breadcrumbsTemplate, 'breadcrumbsTemplate')
+      .mockReturnValue('[BREADCRUMBS]');
+  });
+
+  afterAll(() => {
+    jest.restoreAllMocks();
+    testApp.cleanup();
   });
 
   test(`should compile readme`, () => {
     expect(
-      TestApp.compileTemplate(indexTemplate, {
+      readmeTemplate({
         model: testApp.project,
         project: testApp.project,
-      }),
+      } as PageEvent),
     ).toMatchSnapshot();
   });
 });

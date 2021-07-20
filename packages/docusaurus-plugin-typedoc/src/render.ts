@@ -12,6 +12,7 @@ import {
   TypeDocReader,
   UrlMapping,
 } from 'typedoc';
+import { renderer } from 'typedoc-plugin-markdown';
 import { GroupPlugin } from 'typedoc/dist/lib/converter/plugins';
 import { RendererEvent } from 'typedoc/dist/lib/output/events';
 import { TemplateMapping } from 'typedoc/dist/lib/output/themes/DefaultTheme';
@@ -80,9 +81,9 @@ async function render(project: ProjectReflection, outputDirectory: string) {
 
     Object.keys(groupUrlsByKind(output.urls)).forEach((group) => {
       const kind = parseInt(group);
-      const mapping = this.theme.mappings.find((mapping: TemplateMapping) =>
-        mapping.kind.includes(kind),
-      );
+      const mapping = renderer
+        .mappings()
+        .find((mapping: TemplateMapping) => mapping.kind.includes(kind));
       if (mapping) {
         writeCategoryYaml(
           outputDirectory + '/' + mapping.directory,

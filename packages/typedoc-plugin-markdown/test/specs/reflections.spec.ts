@@ -1,87 +1,100 @@
-import * as Handlebars from 'handlebars';
-
+import { PageEvent } from 'typedoc/dist/lib/output/events';
+import * as breadcrumbsTemplate from '../../src/renderer/templates/breadcrumbs';
+import * as groupsTemplate from '../../src/renderer/templates/groups';
+import * as linkTemplate from '../../src/renderer/templates/link';
+import { pageTemplate } from '../../src/renderer/templates/page';
+import * as signatureTemplate from '../../src/renderer/templates/signature';
+import * as tocTemplate from '../../src/renderer/templates/toc';
 import { TestApp } from '../test-app';
 
 describe(`Reflections:`, () => {
-  let reflectionTemplate: Handlebars.TemplateDelegate;
+  beforeAll(() => {
+    jest
+      .spyOn(breadcrumbsTemplate, 'breadcrumbsTemplate')
+      .mockReturnValue('[BREADCRUMBS]');
+    jest
+      .spyOn(signatureTemplate, 'signatureTemplate')
+      .mockReturnValue('[SIGNATURE]');
+    jest.spyOn(tocTemplate, 'tocTemplate').mockReturnValue('[TOC]');
+    jest.spyOn(linkTemplate, 'linkTemplate').mockReturnValue('[LINK]');
+    jest.spyOn(groupsTemplate, 'groupsTemplate').mockReturnValue('[GROUPS]');
+  });
 
+  afterAll(() => {
+    jest.restoreAllMocks();
+  });
   describe(`(header)`, () => {
     let testApp: TestApp;
-    beforeEach(async () => {
+
+    beforeAll(() => {
       testApp = new TestApp(['reflections.ts']);
-      await testApp.bootstrap({
+      testApp.bootstrap({
         hideBreadcrumbs: false,
         hidePageTitle: true,
       });
-      TestApp.stubPartials(['comment', 'member.signature', 'members']);
-      TestApp.stubHelpers(['toc', 'breadcrumbs', 'hierarchy']);
-      reflectionTemplate = TestApp.getTemplate('reflection');
     });
+
+    afterAll(() => {
+      testApp.cleanup();
+    });
+
     test(`should compile template with breadcrumbs and without title`, () => {
       expect(
-        TestApp.compileTemplate(reflectionTemplate, {
+        pageTemplate({
           model: testApp.project.children[0],
           project: testApp.project,
-        }),
+        } as PageEvent),
       ).toMatchSnapshot();
     });
   });
 
   describe(`(template)`, () => {
     let testApp: TestApp;
-    beforeEach(async () => {
+    beforeAll(() => {
       testApp = new TestApp(['reflections.ts']);
-      await testApp.bootstrap({
+      testApp.bootstrap({
         hideBreadcrumbs: true,
         hidePageTitle: false,
       });
-      TestApp.stubPartials(['index', 'comment', 'member.signature', 'members']);
-      TestApp.stubHelpers(['breadcrumbs', 'hierarchy']);
-      reflectionTemplate = TestApp.getTemplate('reflection');
     });
 
-    test(`should compile module with breadcrumbs and project title`, () => {
+    afterAll(() => {
+      testApp.cleanup();
+    });
+
+    test(`should compile module without breadcrumbs and with project title`, () => {
       expect(
-        TestApp.compileTemplate(reflectionTemplate, {
+        pageTemplate({
           model: testApp.project.children[0],
           project: testApp.project,
-        }),
+        } as PageEvent),
       ).toMatchSnapshot();
     });
 
     test(`should compile a callable reflection`, () => {
       expect(
-        TestApp.compileTemplate(reflectionTemplate, {
+        pageTemplate({
           model: testApp.findReflection('CallableReflection'),
           project: testApp.project,
-        }),
+        } as PageEvent),
       ).toMatchSnapshot();
     });
 
     test(`should compile an indexable reflection`, () => {
       expect(
-        TestApp.compileTemplate(reflectionTemplate, {
+        pageTemplate({
           model: testApp.findReflection('IndexableReflection'),
           project: testApp.project,
-        }),
+        } as PageEvent),
       ).toMatchSnapshot();
     });
 
     test(`should compile implemented class`, () => {
       expect(
-        TestApp.compileTemplate(reflectionTemplate, {
+        pageTemplate({
           model: testApp.findReflection('ImplementedClass'),
           project: testApp.project,
-        }),
-      ).toMatchSnapshot();
-    });
-
-    test(`should compile Enum`, () => {
-      expect(
-        TestApp.compileTemplate(reflectionTemplate, {
-          model: testApp.findReflection('EnumReflection'),
-          project: testApp.project,
-        }),
+        } as PageEvent),
       ).toMatchSnapshot();
     });
   });
