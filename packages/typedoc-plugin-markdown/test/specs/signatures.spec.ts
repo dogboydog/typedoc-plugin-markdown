@@ -1,6 +1,6 @@
-import { signatureTemplate } from '../../src/renderer/templates/signature';
-import * as sourcesTemplate from '../../src/renderer/templates/sources';
-import { formatContents } from '../../src/renderer/tools/utils';
+import { signatureTemplate } from '../../src/templates/signature';
+import * as sourcesTemplate from '../../src/templates/sources';
+import { formatContents } from '../../src/tools/utils';
 import { TestApp } from '../test-app';
 
 describe(`Signatures:`, () => {

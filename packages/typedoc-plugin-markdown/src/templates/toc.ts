@@ -4,26 +4,24 @@ import {
   ReflectionCategory,
   ReflectionGroup,
 } from 'typedoc/dist/lib/models';
-
-import settings from '../settings';
+import { getContext } from '../context';
 import { MarkdownBuilder } from '../tools/builder';
 import { heading, unorderedList } from '../tools/elements';
 import { linkTemplate } from './link';
 
 export function tocTemplate(model: ProjectReflection | DeclarationReflection) {
-  const options = settings.options;
+  const { hideInPageTOC } = getContext();
+
   const md = new MarkdownBuilder();
   const isVisible = model.groups?.some((group) =>
     group.allChildrenHaveOwnDocument(),
   );
   if ((!this.hideInPageTOC && model.groups) || (isVisible && model.groups)) {
-    if (!options.hideInPageTOC) {
+    if (!hideInPageTOC) {
       md.add(heading(2, 'Table of contents'));
     }
     model.groups
-      ?.filter(
-        (group) => !options.hideInPageTOC || group.allChildrenHaveOwnDocument(),
-      )
+      ?.filter((group) => !hideInPageTOC || group.allChildrenHaveOwnDocument())
       .forEach((group) => {
         if (group.categories) {
           group.categories.forEach((category) => {
@@ -39,9 +37,9 @@ export function tocTemplate(model: ProjectReflection | DeclarationReflection) {
 }
 
 function getGroup(group: ReflectionGroup | ReflectionCategory, title: string) {
-  const options = settings.options;
+  const { hideInPageTOC } = getContext();
   const md = new MarkdownBuilder();
-  md.add(heading(options.hideInPageTOC ? 2 : 3, title));
+  md.add(heading(hideInPageTOC ? 2 : 3, title));
   const groupItems = group.children.map((child) =>
     linkTemplate(child.name, child.url),
   );

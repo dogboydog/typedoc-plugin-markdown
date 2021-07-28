@@ -1,7 +1,7 @@
 import { DeclarationReflection } from 'typedoc';
-import settings from '../../src/renderer/settings';
-import { sourcesTemplate } from '../../src/renderer/templates/sources';
-import { formatContents } from '../../src/renderer/tools/utils';
+import * as context from '../../src/context';
+import { sourcesTemplate } from '../../src/templates/sources';
+import { formatContents } from '../../src/tools/utils';
 import { TestApp } from '../test-app';
 
 const getProp = (reflection: DeclarationReflection) => {
@@ -19,7 +19,9 @@ describe(`Sources:`, () => {
   beforeAll(() => {
     testApp = new TestApp(['sources.ts']);
     testApp.bootstrap();
-    settings.activeUrl = 'class/SomeClass.md';
+    jest
+      .spyOn(context, 'getContext')
+      .mockReturnValue({ activeUrl: 'class/SomeClass.md' } as any);
   });
 
   afterAll(() => {

@@ -11,7 +11,7 @@
     "lint:ts": "eslint ./src --ext .ts",
     "lint:md": "yarn run demo:md && markdownlint ./demo/md",
     "prepublishOnly": "yarn run lint && yarn run build && yarn run test",
-    "build": "rm -rf dist && tsc && copyfiles --up 1 ./src/**/*.hbs ./dist/",
+    "build": "rm -rf dist && tsc",
     "test": "jest --colors --updateSnapshot",
     "test:ci": "jest --colors --runInBand",
     "build-and-test": "yarn run build && yarn run test",

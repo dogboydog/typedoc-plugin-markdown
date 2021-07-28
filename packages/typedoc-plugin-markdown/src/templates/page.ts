@@ -1,6 +1,6 @@
 import { DeclarationReflection } from 'typedoc';
 import { PageEvent } from 'typedoc/dist/lib/output/events';
-import settings from '../settings';
+import { getContext } from '../context';
 import { MarkdownBuilder } from '../tools/builder';
 import { heading } from '../tools/elements';
 import { breadcrumbsTemplate } from './breadcrumbs';
@@ -12,7 +12,7 @@ import { tocTemplate } from './toc';
 export function pageTemplate(page: PageEvent) {
   const md = new MarkdownBuilder();
 
-  const { hideBreadcrumbs, hidePageTitle } = settings.options;
+  const { hideBreadcrumbs, hidePageTitle } = getContext();
 
   if (!hideBreadcrumbs) {
     md.add(breadcrumbsTemplate(page));

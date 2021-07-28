@@ -1,6 +1,6 @@
 import { Reflection } from 'typedoc';
-import settings from '../../src/renderer/settings';
-import { tocTemplate } from '../../src/renderer/templates/toc';
+import * as context from '../../src/context';
+import { tocTemplate } from '../../src/templates/toc';
 import { TestApp } from '../test-app';
 
 describe(`TOC:`, () => {
@@ -14,7 +14,9 @@ describe(`TOC:`, () => {
       testApp.bootstrap();
       moduleReflection = testApp.project.children[0];
       classReflection = testApp.project.findReflectionByName('Breadcrumbs');
-      settings.activeUrl = 'classes/Breadcrumbs.md';
+      jest
+        .spyOn(context, 'getContext')
+        .mockReturnValue({ activeUrl: 'classes/Breadcrumbs.md' } as any);
     });
 
     afterAll(() => {
@@ -36,7 +38,12 @@ describe(`TOC:`, () => {
       testApp.bootstrap({ hideInPageTOC: true });
       moduleReflection = testApp.project.children[0];
       classReflection = testApp.project.findReflectionByName('Breadcrumbs');
-      settings.activeUrl = 'classes/Breadcrumbs.md';
+      jest
+        .spyOn(context, 'getContext')
+        .mockReturnValue({
+          hideInPageTOC: true,
+          activeUrl: 'classes/Breadcrumbs.md',
+        } as any);
     });
 
     afterAll(() => {

@@ -1,6 +1,5 @@
 import { Comment } from 'typedoc/dist/lib/models';
-
-import settings from '../settings';
+import { getContext } from '../context';
 import { MarkdownBuilder } from '../tools/builder';
 import { backTicks, bold, link } from '../tools/elements';
 import { linkTemplate } from './link';
@@ -72,7 +71,8 @@ function buildLink(
     return link(caption, target);
   }
 
-  const project = settings.project;
+  const { project } = getContext();
+
   const reflection = project.findReflectionByName(target);
   if (reflection && reflection.url) {
     return linkTemplate(caption, reflection.url, !monospace);

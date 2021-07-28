@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import ProgressBar from 'progress';
 import {
+  Application,
   DeclarationReflection,
   NavigationItem,
   ProjectReflection,
@@ -10,61 +10,53 @@ import {
   UrlMapping,
 } from 'typedoc';
 import { GroupPlugin } from 'typedoc/dist/lib/converter/plugins';
-import { RendererEvent } from 'typedoc/dist/lib/output/events';
-import settings from './settings';
+import { Component } from 'typedoc/dist/lib/output/components';
+import { PageEvent, RendererEvent } from 'typedoc/dist/lib/output/events';
+import { ChildableComponent } from 'typedoc/dist/lib/utils';
+import { getContext } from './context';
 import { pageTemplate } from './templates/page';
 import { readmeTemplate } from './templates/readme';
 import { formatContents } from './tools/utils';
-import { PluginOptions } from './types';
 
 const URL_PREFIX = /^(http|ftp)s?:\/\//;
 
-export async function render(
-  project: ProjectReflection,
-  outputDirectory: string,
-) {
-  if (
-    !this.prepareTheme() ||
-    !(await this.prepareOutputDirectory(outputDirectory))
-  ) {
-    return;
-  }
+@Component({ name: 'renderer' })
+export class MarkdownRenderer extends ChildableComponent<
+  Application,
+  MarkdownRenderer
+> {
+  async render(
+    project: ProjectReflection,
+    outputDirectory: string,
+  ): Promise<void> {
+    const output = new RendererEvent(
+      RendererEvent.BEGIN,
+      outputDirectory,
+      project,
+    );
 
-  settings.project = project;
+    const entryDocument = this.application.options.getValue('entryDocument');
+    const readme = this.application.options.getValue('readme');
+    this.trigger(output);
 
-  const output = new RendererEvent(
-    RendererEvent.BEGIN,
-    outputDirectory,
-    project,
-  );
-
-  const options = this.application.options.getRawValues() as PluginOptions;
-  settings.options = options;
-  output.settings = options;
-  output.urls = getUrls(project);
-
-  if (output.urls) {
-    const bar = new ProgressBar('Rendering [:bar] :percent', {
-      stream: process.stdout,
-      total: output.urls.length,
-      width: 40,
-    });
-
-    output.urls
+    getUrls(project)
       .filter((mapping) => mapping.url)
       .forEach((mapping) => {
         const page = output.createPageEvent(mapping);
-        settings.activeUrl = page.url;
-        settings.activeReflection = page.model;
+        this.trigger(PageEvent.BEGIN, page);
+        if (page.isDefaultPrevented) {
+          return false;
+        }
+
         if (
-          path.basename(page.filename) === options.entryDocument &&
-          !options.readme?.endsWith('none')
+          path.basename(page.filename) === entryDocument &&
+          !readme?.endsWith('none')
         ) {
           writeFile(page.filename, formatContents(readmeTemplate(page)));
         } else {
           writeFile(page.filename, formatContents(pageTemplate(page)));
         }
-        bar.tick();
+        this.trigger(PageEvent.END, page);
       });
   }
 }
@@ -78,7 +70,7 @@ export function writeFile(file: string, content: string) {
 }
 
 export const mappings = () => {
-  const { allReflectionsHaveOwnDocument } = settings.options;
+  const { allReflectionsHaveOwnDocument } = getContext();
   return [
     {
       kind: [ReflectionKind.Module],
@@ -136,15 +128,15 @@ export const mappings = () => {
 };
 
 export function getUrls(project: ProjectReflection) {
-  const { readme, entryDocument } = settings.options;
+  const { readme, entryDocument, globalsFile } = getContext();
   const urls: UrlMapping[] = [];
   const noReadmeFile = readme == path.join(process.cwd(), 'none');
   if (noReadmeFile) {
     project.url = entryDocument;
     urls.push(new UrlMapping(entryDocument, project, 'reflection.hbs'));
   } else {
-    project.url = settings.globalsFile;
-    urls.push(new UrlMapping(settings.globalsFile, project, 'reflection.hbs'));
+    project.url = globalsFile;
+    urls.push(new UrlMapping(globalsFile, project, 'reflection.hbs'));
     urls.push(new UrlMapping(entryDocument, project, 'index.hbs'));
   }
   project.children?.forEach((child: Reflection) => {
@@ -179,7 +171,7 @@ function buildUrls(reflection: DeclarationReflection, urls: UrlMapping[]) {
 }
 
 function getUrl(reflection: Reflection, relative?: Reflection) {
-  const { filenameSeparator } = settings.options;
+  const { filenameSeparator } = getContext();
   let url = reflection.getAlias();
 
   if (
@@ -209,7 +201,7 @@ function applyAnchorUrl(reflection: Reflection, container: Reflection) {
 }
 
 export function getNavigation(project: ProjectReflection) {
-  const { readme, entryPoints, entryDocument } = settings.options;
+  const { readme, entryPoints, entryDocument, globalsFile } = getContext();
   const createNavigationItem = (
     title: string,
     url: string | undefined,
@@ -234,7 +226,7 @@ export function getNavigation(project: ProjectReflection) {
     navigation.children?.push(
       createNavigationItem(
         'Exports',
-        hasReadme ? settings.globalsFile : entryDocument,
+        hasReadme ? globalsFile : entryDocument,
         false,
       ),
     );

@@ -1,6 +1,6 @@
-import settings from '../../src/renderer/settings';
-import { hierarchyTemplate } from '../../src/renderer/templates/hierachy';
-import { formatContents } from '../../src/renderer/tools/utils';
+import * as context from '../../src/context';
+import { hierarchyTemplate } from '../../src/templates/hierachy';
+import { formatContents } from '../../src/tools/utils';
 import { TestApp } from '../test-app';
 
 describe(`Hierarchy:`, () => {
@@ -9,6 +9,9 @@ describe(`Hierarchy:`, () => {
   beforeAll(() => {
     testApp = new TestApp(['hierarchy.ts']);
     testApp.bootstrap();
+    jest.spyOn(context, 'getContext').mockReturnValue({
+      activeUrl: 'classes/hierarchy.ParentClass.md',
+    } as any);
   });
 
   afterAll(() => {
@@ -16,7 +19,6 @@ describe(`Hierarchy:`, () => {
   });
 
   test(`should compile type hierarchy`, () => {
-    settings.activeUrl = 'classes/hierarchy.ParentClass.md';
     const reflection = testApp.findReflection('ParentClass');
     expect(
       formatContents(hierarchyTemplate(reflection.typeHierarchy)),
@@ -24,7 +26,6 @@ describe(`Hierarchy:`, () => {
   });
 
   test(`should compile nested type hierarchy`, () => {
-    settings.activeUrl = 'classes/hierarchy.ParentClass.md';
     const reflection = testApp.findReflection('ChildClassA');
     expect(
       formatContents(hierarchyTemplate(reflection.typeHierarchy)),

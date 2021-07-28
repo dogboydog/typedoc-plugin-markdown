@@ -1,10 +1,11 @@
 import { Application, ParameterType } from 'typedoc';
-
-import { render } from './renderer/renderer';
+import { loadContext } from './context';
+import { MarkdownRenderer } from './renderer';
 
 export function load(app: Application) {
   addDeclarations(app);
-  app.renderer.render = render;
+  app.setRenderer(MarkdownRenderer);
+  loadContext(app);
 }
 
 function addDeclarations(app: Application) {

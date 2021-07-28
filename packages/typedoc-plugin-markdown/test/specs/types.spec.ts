@@ -1,5 +1,5 @@
-import settings from '../../src/renderer/settings';
-import { typeTemplate } from '../../src/renderer/templates/type';
+import * as context from '../../src/context';
+import { typeTemplate } from '../../src/templates/type';
 import { TestApp } from '../test-app';
 
 describe(`Types:`, () => {
@@ -8,7 +8,9 @@ describe(`Types:`, () => {
   beforeAll(() => {
     testApp = new TestApp(['types.ts']);
     testApp.bootstrap();
-    settings.activeUrl = 'modules/types.md';
+    jest
+      .spyOn(context, 'getContext')
+      .mockReturnValue({ activeUrl: 'modules/types.md' } as any);
   });
 
   afterAll(() => {

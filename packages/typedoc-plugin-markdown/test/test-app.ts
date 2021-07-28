@@ -5,13 +5,11 @@ import {
   DeclarationReflection,
   ProjectReflection,
   TSConfigReader,
-  TypeDocReader,
+  TypeDocReader
 } from 'typedoc';
 import { RendererEvent } from 'typedoc/dist/lib/output/events';
 import { load } from '../src/index';
-import { getUrls } from '../src/renderer/renderer';
-import settings from '../src/renderer/settings';
-import { PluginOptions } from '../src/renderer/types';
+import { getUrls } from '../src/renderer';
 
 tmp.setGracefulCleanup();
 
@@ -45,8 +43,6 @@ export class TestApp {
     this.project = this.app.convert();
 
     if (this.project) {
-      settings.project = this.project;
-      settings.options = this.app.options.getRawValues() as PluginOptions;
 
       this.tmpobj = tmp.dirSync();
 

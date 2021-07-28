@@ -1,6 +1,6 @@
-import { declarationTemplate } from '../../src/renderer/templates/declaration';
-import * as sourcesTemplate from '../../src/renderer/templates/sources';
-import { formatContents } from '../../src/renderer/tools/utils';
+import { declarationTemplate } from '../../src/templates/declaration';
+import * as sourcesTemplate from '../../src/templates/sources';
+import { formatContents } from '../../src/tools/utils';
 import { TestApp } from '../test-app';
 
 describe(`Declarations:`, () => {

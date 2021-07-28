@@ -1,14 +1,15 @@
 import { PageEvent } from 'typedoc/dist/lib/output/events';
-import settings from '../../src/renderer/settings';
-import * as breadcrumbsTemplate from '../../src/renderer/templates/breadcrumbs';
-import * as commentsTemplate from '../../src/renderer/templates/comments';
-import { declarationTemplate } from '../../src/renderer/templates/declaration';
-import * as groupsTemplate from '../../src/renderer/templates/groups';
-import { pageTemplate } from '../../src/renderer/templates/page';
-import { signatureTemplate } from '../../src/renderer/templates/signature';
-import * as sourcesTemplate from '../../src/renderer/templates/sources';
-import * as tocTemplate from '../../src/renderer/templates/toc';
-import { formatContents } from '../../src/renderer/tools/utils';
+import * as context from '../../src/context';
+import * as breadcrumbsTemplate from '../../src/templates/breadcrumbs';
+import * as commentsTemplate from '../../src/templates/comments';
+import { declarationTemplate } from '../../src/templates/declaration';
+import * as groupsTemplate from '../../src/templates/groups';
+import * as linkTemplate from '../../src/templates/link';
+import { pageTemplate } from '../../src/templates/page';
+import { signatureTemplate } from '../../src/templates/signature';
+import * as sourcesTemplate from '../../src/templates/sources';
+import * as tocTemplate from '../../src/templates/toc';
+import { formatContents } from '../../src/tools/utils';
 import { TestApp } from '../test-app';
 
 describe(`Generics:`, () => {
@@ -23,9 +24,12 @@ describe(`Generics:`, () => {
       .spyOn(commentsTemplate, 'commentsTemplate')
       .mockReturnValue('[COMMENT]');
     jest.spyOn(tocTemplate, 'tocTemplate').mockReturnValue('[TOC]');
-
+    jest.spyOn(linkTemplate, 'linkTemplate').mockReturnValue('[LINK]');
     jest.spyOn(sourcesTemplate, 'sourcesTemplate').mockReturnValue('[SOURCES]');
-    settings.activeUrl = 'modules/generics.md';
+
+    jest
+      .spyOn(context, 'getContext')
+      .mockReturnValue({ activeUrl: 'modules/generics.md' } as any);
 
     testApp = new TestApp(['generics.ts']);
     testApp.bootstrap();
@@ -40,6 +44,7 @@ describe(`Generics:`, () => {
     expect(
       formatContents(
         pageTemplate({
+          url: 'ClassWithTypeParams.md',
           model: testApp.findReflection('ClassWithTypeParams'),
           project: testApp.project,
         } as PageEvent),
@@ -48,7 +53,6 @@ describe(`Generics:`, () => {
   });
 
   test(`should compile function with a simple type param'`, () => {
-    settings.activeUrl = 'modules/generics.md';
     expect(
       formatContents(
         signatureTemplate(

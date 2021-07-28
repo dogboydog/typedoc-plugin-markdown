@@ -1,6 +1,6 @@
 import { PageEvent } from 'typedoc/dist/lib/output/events';
-import * as breadcrumbsTemplate from '../../src/renderer/templates/breadcrumbs';
-import { readmeTemplate } from '../../src/renderer/templates/readme';
+import * as breadcrumbsTemplate from '../../src/templates/breadcrumbs';
+import { readmeTemplate } from '../../src/templates/readme';
 import { TestApp } from '../test-app';
 
 describe(`Index:`, () => {

@@ -1,10 +1,10 @@
 import { PageEvent } from 'typedoc/dist/lib/output/events';
-import * as breadcrumbsTemplate from '../../src/renderer/templates/breadcrumbs';
-import * as groupsTemplate from '../../src/renderer/templates/groups';
-import * as linkTemplate from '../../src/renderer/templates/link';
-import { pageTemplate } from '../../src/renderer/templates/page';
-import * as signatureTemplate from '../../src/renderer/templates/signature';
-import * as tocTemplate from '../../src/renderer/templates/toc';
+import * as breadcrumbsTemplate from '../../src/templates/breadcrumbs';
+import * as groupsTemplate from '../../src/templates/groups';
+import * as linkTemplate from '../../src/templates/link';
+import { pageTemplate } from '../../src/templates/page';
+import * as signatureTemplate from '../../src/templates/signature';
+import * as tocTemplate from '../../src/templates/toc';
 import { TestApp } from '../test-app';
 
 describe(`Reflections:`, () => {

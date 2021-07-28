@@ -1,22 +1,23 @@
 import { Reflection } from 'typedoc';
 import { PageEvent } from 'typedoc/dist/lib/output/events';
-import settings from '../settings';
+import { getContext } from '../context';
 import { MarkdownBuilder } from '../tools/builder';
 import { escapeChars } from '../tools/utils';
 import { linkTemplate } from './link';
 
 export function breadcrumbsTemplate(page: PageEvent) {
-  const { activeUrl, globalsName, globalsFile, options } = settings;
+  const { activeUrl, globalsName, globalsFile, entryDocument, readme } =
+    getContext();
 
   const md = new MarkdownBuilder();
 
   md.add(
-    page.url === options.entryDocument
+    page.url === entryDocument
       ? page.project.name
-      : linkTemplate(page.project.name, options.entryDocument),
+      : linkTemplate(page.project.name, entryDocument),
   );
 
-  if (!options.readme.endsWith('none')) {
+  if (!readme.endsWith('none')) {
     if (activeUrl === globalsFile) {
       md.add(globalsName);
     } else {

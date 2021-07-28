@@ -1,6 +1,5 @@
 import * as path from 'path';
-
-import settings from '../settings';
+import { getContext } from '../context';
 import { link } from '../tools/elements';
 import { escapeChars } from '../tools/utils';
 
@@ -10,14 +9,14 @@ export function linkTemplate(label: string, to = '', escapeLabel = true) {
 }
 
 function getUrl(to: string) {
-  const { options, activeUrl } = settings;
+  const { activeUrl, publicPath } = getContext();
 
   const urlPrefix = /^(http|ftp)s?:\/\//;
   if (urlPrefix.test(to)) {
     return to;
   } else {
-    return options.publicPath
-      ? getPublicUrl(options.publicPath, to)
+    return publicPath
+      ? getPublicUrl(publicPath, to)
       : getRelativeUrl(activeUrl, to);
   }
 }

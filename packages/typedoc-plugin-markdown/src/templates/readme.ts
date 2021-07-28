@@ -1,6 +1,5 @@
 import { PageEvent } from 'typedoc/dist/lib/output/events';
-
-import settings from '../settings';
+import { getContext } from '../context';
 import { MarkdownBuilder } from '../tools/builder';
 import { breadcrumbsTemplate } from './breadcrumbs';
 import { comment } from './comments';
@@ -8,7 +7,7 @@ import { comment } from './comments';
 export function readmeTemplate(page: PageEvent) {
   const md = new MarkdownBuilder();
 
-  const { hideBreadcrumbs } = settings.options;
+  const { hideBreadcrumbs } = getContext();
 
   if (!hideBreadcrumbs) {
     md.add(breadcrumbsTemplate(page));

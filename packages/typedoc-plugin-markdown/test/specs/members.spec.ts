@@ -1,10 +1,10 @@
 import { DeclarationReflection } from 'typedoc';
-import * as linkTemplate from '../../src/renderer/templates/link';
-import * as memberTemplate from '../../src/renderer/templates/member';
-import { reflectionTemplate } from '../../src/renderer/templates/reflection';
-import * as sourcesTemplate from '../../src/renderer/templates/sources';
-import * as tocTemplate from '../../src/renderer/templates/toc';
-import { formatContents } from '../../src/renderer/tools/utils';
+import * as linkTemplate from '../../src/templates/link';
+import * as memberTemplate from '../../src/templates/member';
+import { reflectionTemplate } from '../../src/templates/reflection';
+import * as sourcesTemplate from '../../src/templates/sources';
+import * as tocTemplate from '../../src/templates/toc';
+import { formatContents } from '../../src/tools/utils';
 import { TestApp } from '../test-app';
 
 describe(`Members:`, () => {

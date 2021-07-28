@@ -1,5 +1,5 @@
-import settings from '../../src/renderer/settings';
-import { commentsTemplate } from '../../src/renderer/templates/comments';
+import * as context from '../../src/context';
+import { commentsTemplate } from '../../src/templates/comments';
 import { TestApp } from '../test-app';
 
 describe(`Comments:`, () => {
@@ -8,7 +8,12 @@ describe(`Comments:`, () => {
   beforeAll(() => {
     testApp = new TestApp(['comments.ts']);
     testApp.bootstrap();
-    settings.activeUrl = 'modules.md';
+    jest
+      .spyOn(context, 'getContext')
+      .mockReturnValue({
+        project: testApp.project,
+        activeUrl: 'modules.md',
+      } as any);
   });
 
   afterAll(() => {

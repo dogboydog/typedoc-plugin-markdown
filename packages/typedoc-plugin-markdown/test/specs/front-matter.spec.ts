@@ -1,4 +1,4 @@
-import { prependYAML } from '../../src/renderer/tools/front-matter';
+import { prependYAML } from '../../src/tools/front-matter';
 import { TestApp } from '../test-app';
 
 describe(`FrontMatter:`, () => {

@@ -1,12 +1,17 @@
 import { Reflection } from 'typedoc';
 import { PageEvent } from 'typedoc/dist/lib/output/events';
-import settings from '../../src/renderer/settings';
-import { breadcrumbsTemplate } from '../../src/renderer/templates/breadcrumbs';
+import * as context from '../../src/context';
+import { breadcrumbsTemplate } from '../../src/templates/breadcrumbs';
 import { TestApp } from '../test-app';
 
 describe(`Breadcrumbs:`, () => {
   let moduleReflection: Reflection;
   let classReflection: Reflection;
+  const baseContext = {
+    entryDocument: 'README.md',
+    globalsName: 'Exports',
+    globalsFile: 'modules.md',
+  };
 
   describe(`(with readme)`, () => {
     let testApp: TestApp;
@@ -23,7 +28,11 @@ describe(`Breadcrumbs:`, () => {
     });
 
     test(`should compile README breadcrumbs'`, () => {
-      settings.activeUrl = 'README.md';
+      jest.spyOn(context, 'getContext').mockReturnValue({
+        ...baseContext,
+        activeUrl: 'README.md',
+        readme: 'readme',
+      } as any);
       expect(
         breadcrumbsTemplate({
           project: testApp.project,
@@ -34,7 +43,14 @@ describe(`Breadcrumbs:`, () => {
     });
 
     test(`should compile entryPoint (globals) breadcrumbs'`, () => {
-      settings.activeUrl = 'modules.md';
+      jest
+        .spyOn(context, 'getContext')
+        .mockReturnValue({
+          ...baseContext,
+          activeUrl: 'modules.md',
+          readme: 'readme',
+        } as any);
+
       expect(
         breadcrumbsTemplate({
           project: testApp.project,
@@ -45,7 +61,12 @@ describe(`Breadcrumbs:`, () => {
     });
 
     test(`should compile class breadcrumbs'`, () => {
-      settings.activeUrl = 'classes/Breadcrumbs.md';
+      jest.spyOn(context, 'getContext').mockReturnValue({
+        ...baseContext,
+        activeUrl: 'classes/Breadcrumbs.md',
+        readme: 'readme',
+      } as any);
+
       expect(
         breadcrumbsTemplate({
           project: testApp.project,
@@ -63,6 +84,11 @@ describe(`Breadcrumbs:`, () => {
       testApp.bootstrap({ readme: 'none' });
       moduleReflection = testApp.project;
       classReflection = testApp.project.findReflectionByName('Breadcrumbs');
+      jest.spyOn(context, 'getContext').mockReturnValue({
+        ...baseContext,
+        activeUrl: 'README.md',
+        readme: 'none',
+      } as any);
     });
 
     afterAll(() => {
@@ -70,7 +96,6 @@ describe(`Breadcrumbs:`, () => {
     });
 
     test(`should compile module breadcrumbs'`, () => {
-      settings.activeUrl = 'README.md';
       expect(
         breadcrumbsTemplate({
           project: testApp.project,
@@ -81,7 +106,12 @@ describe(`Breadcrumbs:`, () => {
     });
 
     test(`should compile class breadcrumbs'`, () => {
-      settings.activeUrl = 'classes/Breadcrumbs.md';
+      jest.spyOn(context, 'getContext').mockReturnValue({
+        ...baseContext,
+        activeUrl: 'classes/Breadcrumbs.md',
+        readme: 'none',
+      } as any);
+
       expect(
         breadcrumbsTemplate({
           project: testApp.project,

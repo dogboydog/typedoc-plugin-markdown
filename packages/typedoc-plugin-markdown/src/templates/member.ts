@@ -1,5 +1,5 @@
 import { DeclarationReflection, ReferenceReflection } from 'typedoc';
-import settings from '../settings';
+import { getContext } from '../context';
 import { MarkdownBuilder } from '../tools/builder';
 import { heading } from '../tools/elements';
 import { escapeChars } from '../tools/utils';
@@ -9,13 +9,14 @@ import { signatureTemplate } from './signature';
 export function memberTemplate(
   model: DeclarationReflection | ReferenceReflection,
 ) {
-  const options = settings.options;
+  const { namedAnchors } = getContext();
+
   const md = new MarkdownBuilder();
 
   md.add(
     heading(
       3,
-      options.namedAnchors
+      namedAnchors
         ? `<a id="${model.anchor}" name="${model.anchor}"></a> `
         : '' + escapeChars(model.name),
     ),
