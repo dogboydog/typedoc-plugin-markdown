@@ -1,13 +1,21 @@
 import * as path from 'path';
 
-import { Application, ParameterType } from 'typedoc';
+import {
+  Application,
+  Context,
+  Converter,
+  PageEvent,
+  ParameterType,
+} from 'typedoc';
+import { setActiveUrl, setOptions } from './context';
+import { CustomOptionsReader } from './tools/options-reader';
 
-import { CustomOptionsReader } from './options-reader';
 import { MarkdownTheme } from './theme';
 
 export function load(app: Application) {
   addDeclarations(app);
-  loadTheme(app);
+  addSettings(app);
+  setTheme(app);
 }
 
 function addDeclarations(app: Application) {
@@ -73,8 +81,37 @@ function addDeclarations(app: Application) {
   });
 }
 
-function loadTheme(app: Application) {
+function addSettings(app: Application) {
+  app.renderer.on(PageEvent.BEGIN, (page: PageEvent) => {
+    setActiveUrl(page.url);
+  });
+
+  app.converter.on(Converter.EVENT_RESOLVE_BEGIN, (context: Context) => {
+    setOptions({
+      project: context.project,
+      entryDocument: app.options.getValue('entryDocument') as string,
+      entryPoints: app.options.getValue('entryPoints') as string[],
+      readme: app.options.getValue('readme') as string,
+      publicPath: app.options.getValue('publicPath') as string,
+      hideBreadcrumbs: app.options.getValue('hideBreadcrumbs') as boolean,
+      hideInPageTOC: app.options.getValue('hideInPageTOC') as boolean,
+      namedAnchors: app.options.getValue('namedAnchors') as boolean,
+    });
+  });
+}
+
+function setTheme(app: Application) {
   const themeRef = app.options.getValue('theme');
+
+  const getCustomTheme = (themeFile: string) => {
+    try {
+      const ThemeClass = require(themeFile);
+      const instance = ThemeClass[Object.keys(ThemeClass)[0]];
+      return instance.prototype instanceof MarkdownTheme ? instance : null;
+    } catch (e) {
+      return null;
+    }
+  };
 
   if (['default', 'markdown'].includes(themeRef)) {
     app.renderer.theme = new MarkdownTheme(app.renderer);
@@ -90,15 +127,5 @@ function loadTheme(app: Application) {
         `[typedoc-plugin-markdown] '${themeRef}' is not a recognised markdown theme.`,
       );
     }
-  }
-}
-
-function getCustomTheme(themeFile: string) {
-  try {
-    const ThemeClass = require(themeFile);
-    const instance = ThemeClass[Object.keys(ThemeClass)[0]];
-    return instance.prototype instanceof MarkdownTheme ? instance : null;
-  } catch (e) {
-    return null;
   }
 }

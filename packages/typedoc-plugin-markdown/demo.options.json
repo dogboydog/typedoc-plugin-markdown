@@ -3,5 +3,6 @@
   "includes": "./test/stubs/inc/",
   "media": "./test/stubs/media/",
   "includeVersion": true,
-  "tsconfig": "./test/stubs/tsconfig.json"
+  "tsconfig": "./test/stubs/tsconfig.json",
+  "readme": "./test/stubs/README.md"
 }

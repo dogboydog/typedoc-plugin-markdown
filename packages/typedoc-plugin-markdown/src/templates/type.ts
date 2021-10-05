@@ -1,0 +1,289 @@
+import {
+  ArrayType,
+  ConditionalType,
+  DeclarationReflection,
+  IndexedAccessType,
+  InferredType,
+  IntersectionType,
+  IntrinsicType,
+  LiteralType,
+  PredicateType,
+  QueryType,
+  ReferenceType,
+  ReflectionType,
+  SignatureReflection,
+  TupleType,
+  Type,
+  TypeOperatorType,
+  UnionType,
+  UnknownType,
+  Reflection,
+} from 'typedoc';
+import { escapeChars } from '../tools/utils';
+import { linkTemplate } from './link';
+
+type Collapse = 'object' | 'function' | 'all' | 'none';
+
+export function typeTemplate(
+  type:
+    | Type
+    | ArrayType
+    | IntersectionType
+    | IntrinsicType
+    | ReferenceType
+    | TupleType
+    | UnionType
+    | TypeOperatorType
+    | QueryType
+    | PredicateType
+    | ReferenceType
+    | ConditionalType
+    | IndexedAccessType
+    | UnknownType
+    | InferredType
+    | Reflection,
+
+  collapse: Collapse = 'none',
+  emphasis = true,
+) {
+  if (type instanceof ReferenceType) {
+    return getReferenceType(type, emphasis);
+  }
+
+  if (type instanceof ArrayType && type.elementType) {
+    return getArrayType(type, emphasis);
+  }
+
+  if (type instanceof UnionType && type.types) {
+    return getUnionType(type, emphasis);
+  }
+
+  if (type instanceof IntersectionType && type.types) {
+    return getIntersectionType(type);
+  }
+
+  if (type instanceof TupleType && type.elements) {
+    return getTupleType(type);
+  }
+
+  if (type instanceof IntrinsicType && type.name) {
+    return getIntrinsicType(type, emphasis);
+  }
+
+  if (type instanceof ReflectionType) {
+    return getReflectionType(type, collapse);
+  }
+
+  if (type instanceof DeclarationReflection) {
+    return getReflectionType(type, collapse);
+  }
+
+  if (type instanceof TypeOperatorType) {
+    return getTypeOperatorType(type);
+  }
+
+  if (type instanceof QueryType) {
+    return getQueryType(type);
+  }
+
+  if (type instanceof ConditionalType) {
+    return getConditionalType(type);
+  }
+
+  if (type instanceof IndexedAccessType) {
+    return getIndexAccessType(type);
+  }
+
+  if (type instanceof UnknownType) {
+    return getUnknownType(type);
+  }
+
+  if (type instanceof InferredType) {
+    return getInferredType(type);
+  }
+
+  if (type instanceof LiteralType) {
+    return getLiteralType(type);
+  }
+
+  return type ? escapeChars(type.toString()) : '';
+}
+
+function getLiteralType(model: LiteralType) {
+  if (typeof model.value === 'bigint') {
+    return `\`${model.value}n\``;
+  }
+  return `\`\`${JSON.stringify(model.value)}\`\``;
+}
+
+export function getReflectionType(
+  model: DeclarationReflection | ReflectionType,
+  collapse: Collapse,
+) {
+  const root = model instanceof ReflectionType ? model.declaration : model;
+  if (root.signatures) {
+    return collapse === 'function' || collapse === 'all'
+      ? `\`fn\``
+      : getFunctionType(root.signatures);
+  }
+  return collapse === 'object' || collapse === 'all'
+    ? `\`Object\``
+    : getDeclarationType(root);
+}
+
+function getDeclarationType(model: DeclarationReflection) {
+  if (model.indexSignature || model.children) {
+    let indexSignature = '';
+    const declarationIndexSignature = model.indexSignature;
+    if (declarationIndexSignature && declarationIndexSignature.type) {
+      const key = declarationIndexSignature.parameters
+        ? declarationIndexSignature.parameters.map(
+            (param) => `[${param.name}: ${param.type}]`,
+          )
+        : '';
+      const obj = typeTemplate(declarationIndexSignature.type);
+      indexSignature = `${key}: ${obj}; `;
+    }
+    const types =
+      model.children &&
+      model.children.map((obj) => {
+        return `\`${obj.name}${
+          obj.flags.isOptional ? '?' : ''
+        }\`: ${typeTemplate(
+          obj.signatures || obj.children ? obj : (obj.type as any),
+        )} ${
+          obj.defaultValue && obj.defaultValue !== '...'
+            ? `= ${escapeChars(obj.defaultValue)}`
+            : ''
+        }`;
+      });
+    return `{ ${indexSignature ? indexSignature : ''}${
+      types ? types.join('; ') : ''
+    } }${
+      model.defaultValue && model.defaultValue !== '...'
+        ? `= ${escapeChars(model.defaultValue)}`
+        : ''
+    }`;
+  }
+  return '{}';
+}
+
+export function getFunctionType(modelSignatures: SignatureReflection[]) {
+  const functions = modelSignatures.map((fn) => {
+    const typeParams = fn.typeParameters
+      ? `<${fn.typeParameters
+          .map((typeParameter) => typeParameter.name)
+          .join(', ')}\\>`
+      : [];
+    const params = fn.parameters
+      ? fn.parameters.map((param) => {
+          return `${param.flags.isRest ? '...' : ''}\`${param.name}${
+            param.flags.isOptional ? '?' : ''
+          }\`: ${typeTemplate(param.type ? param.type : param)}`;
+        })
+      : [];
+    const returns = typeTemplate(fn.type as any);
+    return typeParams + `(${params.join(', ')}) => ${returns}`;
+  });
+  return functions.join('');
+}
+
+function getReferenceType(model: ReferenceType, emphasis) {
+  if (model.reflection || (model.name && model.typeArguments)) {
+    const reflection =
+      model.reflection && model.reflection.url
+        ? [
+            linkTemplate(
+              `\`${model.reflection.name}\``,
+              model.reflection.url,
+              false,
+            ),
+          ]
+        : [`\`${model.name}\``];
+    if (model.typeArguments && model.typeArguments.length > 0) {
+      reflection.push(
+        `<${model.typeArguments
+          .map((typeArgument) => typeTemplate(typeArgument, 'all'))
+          .join(', ')}\\>`,
+      );
+    }
+    return reflection.join('');
+  }
+  return emphasis ? `\`${model.name}\`` : escapeChars(model.name);
+}
+
+function getArrayType(model: ArrayType, emphasis: boolean) {
+  const arrayType = typeTemplate(model.elementType, 'none', emphasis);
+  return model.elementType.type === 'union'
+    ? `(${arrayType})[]`
+    : `${arrayType}[]`;
+}
+
+function getUnionType(model: UnionType, emphasis: boolean) {
+  return model.types
+    .map((unionType) => typeTemplate(unionType, 'none', emphasis))
+    .join(` \\| `);
+}
+
+function getIntersectionType(model: IntersectionType) {
+  return model.types
+    .map((intersectionType) => typeTemplate(intersectionType))
+    .join(' & ');
+}
+
+function getTupleType(model: TupleType) {
+  return `[${model.elements
+    .map((element) => typeTemplate(element))
+    .join(', ')}]`;
+}
+
+function getIntrinsicType(model: IntrinsicType, emphasis: boolean) {
+  return emphasis ? `\`${model.name}\`` : escapeChars(model.name);
+}
+
+function getTypeOperatorType(model: TypeOperatorType) {
+  return `${model.operator} ${typeTemplate(model.target)}`;
+}
+
+function getQueryType(model: QueryType) {
+  return `typeof ${typeTemplate(model.queryType)}`;
+}
+
+function getInferredType(model: InferredType) {
+  return `infer ${escapeChars(model.name)}`;
+}
+
+function getUnknownType(model: UnknownType) {
+  return escapeChars(model.name);
+}
+
+function getConditionalType(model: ConditionalType) {
+  const md: string[] = [];
+  if (model.checkType) {
+    md.push(typeTemplate(model.checkType));
+  }
+  md.push('extends');
+  if (model.extendsType) {
+    md.push(typeTemplate(model.extendsType));
+  }
+  md.push('?');
+  if (model.trueType) {
+    md.push(typeTemplate(model.trueType));
+  }
+  md.push(':');
+  if (model.falseType) {
+    md.push(typeTemplate(model.falseType));
+  }
+  return md.join(' ');
+}
+
+function getIndexAccessType(model: IndexedAccessType) {
+  const md: string[] = [];
+  if (model.objectType) {
+    md.push(typeTemplate(model.objectType));
+  }
+  if (model.indexType) {
+    md.push(`[${typeTemplate(model.indexType)}]`);
+  }
+  return md.join('');
+}

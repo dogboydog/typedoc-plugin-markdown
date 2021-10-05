@@ -1,29 +1,22 @@
-import * as path from 'path';
 import {
   BindOption,
-  ContainerReflection,
   DeclarationReflection,
   PageEvent,
   ProjectReflection,
   Reflection,
   ReflectionKind,
   Renderer,
-  RendererEvent,
   Theme,
   UrlMapping,
 } from 'typedoc';
-import { getKindPlural } from './groups';
+import { URL_PREFIX } from './constants';
+import { getKindPlural } from './tools/groups';
 
-import { NavigationItem } from './navigation-item';
-
-import {
-  indexTemplate,
-  reflectionMemberTemplate,
-  reflectionTemplate,
-  registerHelpers,
-  registerPartials,
-} from './render-utils';
-import { formatContents } from './utils';
+import { NavigationItem } from './tools/navigation-item';
+import { projectTemplate } from './templates/project';
+import { readmeTemplate } from './templates/readme';
+import { reflectionTemplate } from './templates/reflection';
+import { formatContents } from './tools/utils';
 
 export class MarkdownTheme extends Theme {
   @BindOption('allReflectionsHaveOwnDocument')
@@ -38,71 +31,47 @@ export class MarkdownTheme extends Theme {
   @BindOption('filenameSeparator')
   filenameSeparator!: string;
 
-  @BindOption('hideBreadcrumbs')
-  hideBreadcrumbs!: boolean;
-
-  @BindOption('hideInPageTOC')
-  hideInPageTOC!: boolean;
-
-  @BindOption('hidePageTitle')
-  hidePageTitle!: boolean;
-
-  @BindOption('indexTitle')
-  indexTitle!: string;
-
-  @BindOption('namedAnchors')
-  namedAnchors!: boolean;
-
   @BindOption('readme')
   readme!: string;
 
-  @BindOption('out')
-  out!: string;
-
-  @BindOption('publicPath')
-  publicPath!: string;
-
-  static URL_PREFIX = /^(http|ftp)s?:\/\//;
-
-  project?: ProjectReflection;
-  reflection?: DeclarationReflection;
-  location!: string;
-
   constructor(renderer: Renderer) {
     super(renderer);
-
-    this.listenTo(this.owner, {
-      [RendererEvent.BEGIN]: this.onBeginRenderer,
-      [PageEvent.BEGIN]: this.onBeginPage,
-    });
-
-    registerPartials();
-    registerHelpers(this);
   }
 
   render(page: PageEvent<Reflection>): string {
-    return formatContents(page.template(page) as string);
+    return page.template ? formatContents(page.template(page) as string) : '';
+  }
+
+  getReadmeTemplate() {
+    return (page: PageEvent<ProjectReflection>) => readmeTemplate(page);
+  }
+
+  getProjectTemplate() {
+    return (page: PageEvent<ProjectReflection>) => projectTemplate(page);
+  }
+
+  getReflectionTemplate() {
+    return (page: PageEvent<DeclarationReflection>) => reflectionTemplate(page);
+  }
+
+  getReflectionMemberTemplate() {
+    return (page: PageEvent<DeclarationReflection>) => reflectionTemplate(page);
   }
 
   getUrls(project: ProjectReflection) {
     const urls: UrlMapping[] = [];
-    const noReadmeFile = this.readme.endsWith('none');
-    if (noReadmeFile) {
+    if (!this.hasReadme()) {
       project.url = this.entryDocument;
       urls.push(
-        new UrlMapping(
-          this.entryDocument,
-          project,
-          this.getReflectionTemplate(),
-        ),
+        new UrlMapping(this.entryDocument, project, this.getProjectTemplate()),
       );
     } else {
       project.url = this.globalsFile;
       urls.push(
-        new UrlMapping(this.globalsFile, project, this.getReflectionTemplate()),
+        new UrlMapping(this.globalsFile, project, this.getProjectTemplate()),
       );
       urls.push(
-        new UrlMapping(this.entryDocument, project, this.getIndexTemplate()),
+        new UrlMapping(this.entryDocument, project, this.getReadmeTemplate()),
       );
     }
     project.children?.forEach((child: Reflection) => {
@@ -121,7 +90,7 @@ export class MarkdownTheme extends Theme {
       reflection.kindOf(mapping.kind),
     );
     if (mapping) {
-      if (!reflection.url || !MarkdownTheme.URL_PREFIX.test(reflection.url)) {
+      if (!reflection.url || !URL_PREFIX.test(reflection.url)) {
         const url = this.toUrl(mapping, reflection);
         urls.push(new UrlMapping(url, reflection, mapping.template));
         reflection.url = url;
@@ -160,7 +129,7 @@ export class MarkdownTheme extends Theme {
   }
 
   applyAnchorUrl(reflection: Reflection, container: Reflection) {
-    if (!reflection.url || !MarkdownTheme.URL_PREFIX.test(reflection.url)) {
+    if (!reflection.url || !URL_PREFIX.test(reflection.url)) {
       const reflectionId = reflection.name.toLowerCase();
       const anchor = this.toAnchorRef(reflectionId);
       reflection.url = container.url + '#' + anchor;
@@ -176,48 +145,6 @@ export class MarkdownTheme extends Theme {
 
   toAnchorRef(reflectionId: string) {
     return reflectionId;
-  }
-
-  getRelativeUrl(absolute: string) {
-    if (MarkdownTheme.URL_PREFIX.test(absolute)) {
-      return absolute;
-    } else {
-      const relative = path.relative(
-        path.dirname(this.location),
-        path.dirname(absolute),
-      );
-      return path.join(relative, path.basename(absolute)).replace(/\\/g, '/');
-    }
-  }
-
-  getReflectionTemplate() {
-    return (pageEvent: PageEvent<ContainerReflection>) => {
-      return reflectionTemplate(pageEvent, {
-        allowProtoMethodsByDefault: true,
-        allowProtoPropertiesByDefault: true,
-        data: { theme: this },
-      });
-    };
-  }
-
-  getReflectionMemberTemplate() {
-    return (pageEvent: PageEvent<ContainerReflection>) => {
-      return reflectionMemberTemplate(pageEvent, {
-        allowProtoMethodsByDefault: true,
-        allowProtoPropertiesByDefault: true,
-        data: { theme: this },
-      });
-    };
-  }
-
-  getIndexTemplate() {
-    return (pageEvent: PageEvent<ContainerReflection>) => {
-      return indexTemplate(pageEvent, {
-        allowProtoMethodsByDefault: true,
-        allowProtoPropertiesByDefault: true,
-        data: { theme: this },
-      });
-    };
   }
 
   getNavigation(project: ProjectReflection) {
@@ -243,7 +170,7 @@ export class MarkdownTheme extends Theme {
       return filteredNavigationItem as NavigationItem;
     };
     const navigation = createNavigationItem(project.name, undefined, false);
-    const hasReadme = !this.readme.endsWith('none');
+    const hasReadme = this.hasReadme();
     if (hasReadme) {
       navigation.children?.push(
         createNavigationItem('Readme', this.entryDocument, false),
@@ -340,24 +267,8 @@ export class MarkdownTheme extends Theme {
     ];
   }
 
-  /**
-   * Triggered before the renderer starts rendering a project.
-   *
-   * @param event  An event object describing the current render operation.
-   */
-  protected onBeginRenderer(event: RendererEvent) {
-    this.project = event.project;
-  }
-
-  /**
-   * Triggered before a document will be rendered.
-   *
-   * @param page  An event object describing the current render operation.
-   */
-  protected onBeginPage(page: PageEvent) {
-    this.location = page.url;
-    this.reflection =
-      page.model instanceof DeclarationReflection ? page.model : undefined;
+  hasReadme() {
+    return !this.readme.endsWith('none');
   }
 
   get globalsFile() {
