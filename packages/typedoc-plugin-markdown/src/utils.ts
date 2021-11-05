@@ -40,7 +40,7 @@ export function memberSymbol(
     return '▪';
   }
 
-  return '•';
+  return '';
 }
 
 export function spaces(length: number) {

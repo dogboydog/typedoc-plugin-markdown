@@ -6,6 +6,7 @@ export default function () {
   Handlebars.registerHelper(
     'propertyTable',
     function (this: DeclarationReflection[]) {
+      console.error(`TODO: dogboy ${__filename}`);
       const comments = this.map(
         (param) =>
           !!param.comment?.text?.trim() || !!param.comment?.shortText?.trim(),

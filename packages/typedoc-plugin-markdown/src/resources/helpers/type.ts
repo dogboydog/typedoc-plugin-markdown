@@ -148,7 +148,7 @@ function getDeclarationType(model: DeclarationReflection) {
     const types =
       model.children &&
       model.children.map((obj) => {
-        return `\`${obj.name}${
+        return `\`baby${obj.name}${
           obj.flags.isOptional ? '?' : ''
         }\`: ${Handlebars.helpers.type.call(
           obj.signatures || obj.children ? obj : obj.type,

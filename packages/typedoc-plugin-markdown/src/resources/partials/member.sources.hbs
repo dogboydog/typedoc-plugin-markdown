@@ -2,40 +2,10 @@
 
 #### Implementation of
 
-{{#with implementationOf}}
-
-{{typeAndParent}}
-
-{{/with}}
-
-{{/if}}
-
-{{#if inheritedFrom}}
-
-#### Inherited from
-
-{{#with inheritedFrom}}
-
-{{{typeAndParent}}}
-
-{{/with}}
-
-{{/if}}
-
-{{#if overwrites}}
-
-#### Overrides
-
-{{#with overwrites}}
-
-{{typeAndParent}}
-
-{{/with}}
-
-{{/if}}
+{{#with implementationOf}}{{typeAndParent}}{{/with}}{{/if}}
+{{#if overwrites}}{{#with overwrites}}{{~typeAndParent~}}{{/with}}{{/if}}
 
 {{#if sources}}
-
 #### Defined in
 
 {{#each sources}}

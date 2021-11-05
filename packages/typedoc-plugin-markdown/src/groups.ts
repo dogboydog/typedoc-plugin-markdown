@@ -9,6 +9,7 @@ const PLURALS = {
 };
 
 export function getKindPlural(kind: ReflectionKind): string {
+  require('fs').appendfileSync('/home/chris/Documents/tiled/docs/scripting-doc/doc.log', `TODO: dogboy ${__filename}`);
   if (kind in PLURALS) {
     return PLURALS[kind as keyof typeof PLURALS];
   } else {

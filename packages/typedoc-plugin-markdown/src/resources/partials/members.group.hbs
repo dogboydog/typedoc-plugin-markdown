@@ -7,19 +7,16 @@ ___
 {{/unless}}
 
 ## {{title}} {{../title}}
-
-{{#each children}}
-
-{{> member}}
-
-{{/each}}
-
-{{/each}}
+| Name | Description |
+{{~#each children~}}
+{{~> member~}}
+{{~/each~}}
+{{~/each~}}
 
 {{else}}
 
 ## {{title}}
-
+| Name | Description |
 {{#each children}}
 
 {{> member}}
